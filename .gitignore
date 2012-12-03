@@ -1,0 +1,5 @@
+# composer files
+autoload.php
+composer/
+symfony/
+composer.lock
