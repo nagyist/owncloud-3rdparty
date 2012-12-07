@@ -1,3 +1,9 @@
 [submodule "symfony/routing/Symfony/Component/Routing"]
 	path = symfony/routing/Symfony/Component/Routing
 	url = git://github.com/symfony/Routing.git
+[submodule "doctrine/common"]
+	path = doctrine/common
+	url = git://github.com/doctrine/common.git
+[submodule "doctrine/dbal"]
+	path = doctrine/dbal
+	url = git://github.com/doctrine/dbal.git
