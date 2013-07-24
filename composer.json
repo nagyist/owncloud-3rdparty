@@ -1,0 +1,22 @@
+{
+	"name": "owncloud/3rdparty",
+	"description": "All 3rdparty components",
+	"license": "MIT",
+
+	"config": {
+		"vendor-dir": "vendor"
+	},
+    "require": {
+	    "pear/archive_tar": "1.3.11",
+	    "phpmailer/phpmailer": "v5.2.6",
+	    "sabre/dav" : "1.7.6",
+	    "doctrine/common": "2.3.0",
+	    "doctrine/dbal": "2.3.4",
+	    "dropbox-php/dropbox-php": "1.0.0",
+	    "nass600/get-id3": "dev-master",
+	    "symfony/routing": "v2.3.2",
+	    "omissis/php-cloudfiles": "v1.7.13",
+	    "patchwork/utf8": "v1.1.8",
+	    "hautelook/phpass": "0.3.0"
+    }
+}
