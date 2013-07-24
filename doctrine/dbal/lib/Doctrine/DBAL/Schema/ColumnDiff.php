@@ -44,17 +44,11 @@ class ColumnDiff
      */
     public $changedProperties = array();
 
-    /**
-     * @var Column
-     */
-    public $fromColumn;
-
-    public function __construct($oldColumnName, Column $column, array $changedProperties = array(), Column $fromColumn = null)
+    public function __construct($oldColumnName, Column $column, array $changedProperties = array())
     {
         $this->oldColumnName = $oldColumnName;
         $this->column = $column;
         $this->changedProperties = $changedProperties;
-        $this->fromColumn = $fromColumn;
     }
 
     public function hasChanged($propertyName)

@@ -35,11 +35,6 @@ use \Doctrine\DBAL\Platforms\AbstractPlatform;
 class SchemaDiff
 {
     /**
-     * @var Schema
-     */
-    public $fromSchema;
-
-    /**
      * All added tables
      *
      * @var array(string=>ezcDbSchemaTable)
@@ -86,14 +81,12 @@ class SchemaDiff
      * @param array(string=>Table)      $newTables
      * @param array(string=>TableDiff)  $changedTables
      * @param array(string=>bool)       $removedTables
-     * @param Schema                    $fromSchema
      */
-    public function __construct($newTables = array(), $changedTables = array(), $removedTables = array(), Schema $fromSchema = null)
+    public function __construct($newTables = array(), $changedTables = array(), $removedTables = array())
     {
         $this->newTables = $newTables;
         $this->changedTables = $changedTables;
         $this->removedTables = $removedTables;
-        $this->fromSchema = $fromSchema;
     }
 
     /**
