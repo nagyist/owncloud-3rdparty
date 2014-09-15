@@ -2,9 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -261,6 +261,64 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
+
+    /**
+     * @group DDC-2843
+     */
+    public function testBooleanDefault()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('ddc2843_bools');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('checked', 'boolean', array('default' => false));
+
+        $this->_sm->createTable($table);
+
+        $databaseTable = $this->_sm->listTableDetails($table->getName());
+
+        $c = new \Doctrine\DBAL\Schema\Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
+    }
+
+    public function testListTableWithBinary()
+    {
+        $tableName = 'test_binary_table';
+
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table->addColumn('id', 'integer');
+        $table->addColumn('column_varbinary', 'binary', array());
+        $table->addColumn('column_binary', 'binary', array('fixed' => true));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $table = $this->_sm->listTableDetails($tableName);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_varbinary')->getType());
+        $this->assertFalse($table->getColumn('column_varbinary')->getFixed());
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
+        $this->assertFalse($table->getColumn('column_binary')->getFixed());
+    }
+
+    public function testListQuotedTable()
+    {
+        $offlineTable = new Schema\Table('user');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('username', 'string', array('unique' => true));
+        $offlineTable->addColumn('fk', 'integer');
+        $offlineTable->setPrimaryKey(array('id'));
+        $offlineTable->addForeignKeyConstraint($offlineTable, array('fk'), array('id'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('"user"');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+    }
 }
 
 class MoneyType extends Type
@@ -271,7 +329,7 @@ class MoneyType extends Type
         return "MyMoney";
     }
 
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return 'MyMoney';
     }

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Mocks;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms;
 
 class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
@@ -29,6 +30,22 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'DUMMYCLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'DUMMYJSON';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryTypeDeclarationSQL(array $field)
+    {
+        return 'DUMMYBINARY';
     }
 
     public function getVarcharDefaultLength()

@@ -1,3 +1,70 @@
+# Upgrade to 2.5
+
+## BC BREAK: Doctrine\DBAL\Schema\Table
+
+The methods ``addIndex()`` and ``addUniqueIndex()`` in ``Doctrine\DBAL\Schema\Table``
+hav an additional, optional parameter. If you override these methods, you should
+add this new parameter to the declaration of your overridden methods.
+
+## BC BREAK: Doctrine\DBAL\Connection
+
+The visibility of the property ``$_platform`` in ``Doctrine\DBAL\Connection``
+was changed from protected to private. If you have subclassed ``Doctrine\DBAL\Connection``
+in your application and accessed ``$_platform`` directly, you have to change the code
+portions to use ``getDatabasePlatform()`` instead to retrieve the underlying database
+platform.
+The reason for this change is the new automatic platform version detection feature,
+which lazily evaluates the appropriate platform class to use for the underlying database
+server version at runtime.
+Please also note, that calling ``getDatabasePlatform()`` now needs to establish a connection
+in order to evaluate the appropriate platform class if ``Doctrine\DBAL\Connection`` is not
+already connected. Under the following circumstances, it is not possible anymore to retrieve
+the platform instance from the connection object without having to do a real connect:
+
+1. ``Doctrine\DBAL\Connection`` was instantiated without the ``platform`` connection parameter.
+2. ``Doctrine\DBAL\Connection`` was instantiated without the ``serverVersion`` connection parameter.
+3. The underlying driver is "version aware" and can provide different platform instances
+   for different versions.
+4. The underlying driver connection is "version aware" and can provide the database server
+   version without having to query for it.
+
+If one of the above conditions is NOT met, there is no need for ``Doctrine\DBAL\Connection``
+to do a connect when calling ``getDatabasePlatform()``.
+
+## datetime Type uses date_create() as fallback
+
+Before 2.5 the DateTime type always required a specific format, defined in
+`$platform->getDateTimeFormatString()`, which could cause quite some troubles
+on platforms that had various microtime precision formats. Starting with 2.5
+whenever the parsing of a date fails with the predefined platform format,
+the `date_create()` function will be used to parse the date.
+
+This could cause some troubles when your date format is weird and not parsed
+correctly by `date_create`, however since databases are rather strict on dates
+there should be no problem.
+
+## Support for pdo_ibm driver removed
+
+The ``pdo_ibm`` driver is buggy and does not work well with Doctrine. Therefore it will no
+longer be supported and has been removed from the ``Doctrine\DBAL\DriverManager`` drivers
+map. It is highly encouraged to to use `ibm_db2` driver instead if you want to connect
+to an IBM DB2 database as it is much more stable and secure.
+
+If for some reason you have to utilize the ``pdo_ibm`` driver you can still use the `driverClass`
+connection parameter to explicitly specify the ``Doctrine\DBAL\Driver\PDOIbm\Driver`` class.
+However be aware that you are doing this at your own risk and it will not be guaranteed that
+Doctrine will work as expected.
+
+# Upgrade to 2.4
+
+## Doctrine\DBAL\Schema\Constraint
+
+If you have custom classes that implement the constraint interface, you have to implement
+an additional method ``getQuotedColumns`` now. This method is used to build proper constraint
+SQL for columns that need to be quoted, like keywords reserved by the specific platform used.
+The method has to return the same values as ``getColumns`` only that those column names that
+need quotation have to be returned quoted for the given platform.
+
 # Upgrade to 2.3
 
 ## Oracle Session Init now sets Numeric Character
@@ -76,7 +143,7 @@ now set to 'utf8'/'utf8_unicode_ci' by default. Previously the MySQL server defa
 
 # Upgrade to 2.2
 
-## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connnection#update
+## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connection#update
 
 Both methods now accept an optional last parameter $types with binding types of the values passed.
 This can potentially break child classes that have overwritten one of these methods.
@@ -88,7 +155,7 @@ Doctrine\DBAL\Connection#executeQuery() got a new last parameter "QueryCacheProf
 ## Doctrine\DBAL\Driver\Statement split
 
 The Driver statement was split into a ResultStatement and the normal statement extending from it.
-This seperates the configuration and the retrieval API from a statement.
+This separates the configuration and the retrieval API from a statement.
 
 ## MsSql Platform/SchemaManager renamed
 

@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\Tests\DbalFunctionalTestCase;
 
 /**
  * @group DBAL-20
@@ -14,8 +14,11 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() == "sqlite") {
-            $this->markTestSkipped('Test does not work on sqlite.');
+        $platformName = $this->_conn->getDatabasePlatform()->getName();
+
+        // This is a MySQL specific test, skip other vendors.
+        if ($platformName != 'mysql') {
+            $this->markTestSkipped(sprintf('Test does not work on %s.', $platformName));
         }
 
         try {
@@ -92,7 +95,28 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn = $this->createMasterSlaveConnection($keepSlave = true);
         $conn->connect('slave');
 
-        $conn->insert('master_slave_table', array('test_int' => 40));
+        $conn->beginTransaction();
+        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->commit();
+
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect();
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect('slave');
+        $this->assertFalse($conn->isConnectedToMaster());
+    }
+
+    /**
+     * @group DBAL-335
+     */
+    public function testKeepSlaveInsertStaysOnMaster()
+    {
+        $conn = $this->createMasterSlaveConnection($keepSlave = true);
+        $conn->connect('slave');
+
+        $conn->insert('master_slave_table', array('test_int' => 30));
 
         $this->assertTrue($conn->isConnectedToMaster());
 
