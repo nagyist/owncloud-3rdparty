@@ -2,21 +2,13 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\DBALException;
+
 class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
     private $_sequenceNextValSql = "";
     private $_prefersIdentityColumns = true;
     private $_prefersSequences = false;
-
-    /**
-     * @override
-     */
-    public function getNativeDeclaration(array $field) {}
-
-    /**
-     * @override
-     */
-    public function getPortableDeclaration(array $field) {}
 
     /**
      * @override

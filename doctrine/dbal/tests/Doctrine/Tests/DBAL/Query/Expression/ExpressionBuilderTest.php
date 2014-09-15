@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
-    Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -197,5 +197,15 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
     public function testIsNotNull()
     {
         $this->assertEquals('u.updated IS NOT NULL', $this->expr->isNotNull('u.updated'));
+    }
+
+    public function testIn()
+    {
+        $this->assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
+    }
+
+    public function testNotIn()
+    {
+        $this->assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
     }
 }
